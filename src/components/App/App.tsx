@@ -8,9 +8,21 @@ import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal';
+import { useQuery } from '@tanstack/react-query';
+
  
 
 export default function App() {
+
+  const { data, error: queryError, isLoading } = useQuery({
+    queryKey: ['chosenmovie'],
+    queryFn: fetchMovies,
+
+  })
+
+  console.log(data);
+  
+
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -45,12 +57,22 @@ export default function App() {
     setSelectedMovie(null); 
   };
 
+//   Для збереження колекції відповідей від бекенда та керування станом запитів 
+// використовуйте бібліотеку TanStack Query.
+
+// Необхідно зробити рефакторинг логіки отримання і збереження фільмів, 
+// а також відповідних станів. 
+// Не забудь, що налаштування роботи клієнта react-query потрібно робити на верхньому рівні, 
+// тобто у файлі src/main.tsx, а використовувати відповідні хуки безпосередньо в тому компоненті, 
+// де необхідна обробка отриманих даних – у нашому випадку, у компоненті App.
+
   return (
     <>
       <Toaster />
       <SearchBar onSubmit={handleSearch} />
+      {isLoading && <p>...is loading</p>}
       {loading && <Loader />}
-      {error && <ErrorMessage />}
+      {queryError && <ErrorMessage />}
       {!loading && !error && (
         <MovieGrid movies={movies} onSelect={handleSelectMovie} />
       )}
