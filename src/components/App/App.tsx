@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import ReactPaginate from 'react-paginate';
 import { fetchMovies } from '../../services/movieService';
@@ -10,6 +11,7 @@ import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal';
 import css from './App.module.css'
+import toast, { Toaster } from 'react-hot-toast';
 
  
 
@@ -40,8 +42,15 @@ export default function App() {
     setSelectedMovie(null); 
   };
 
+   useEffect(() => {
+    if (data && data.results.length === 0) {
+      toast(`👽 Something went wrong!`);
+    }
+  }, [data]);
+
   return (
     <>
+      <Toaster position="top-right"/>
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
