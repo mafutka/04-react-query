@@ -1,8 +1,7 @@
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import ReactPaginate from 'react-paginate';
-import toast, { Toaster } from 'react-hot-toast';
 import { fetchMovies } from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
@@ -20,15 +19,13 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   
-  const { data,  isLoading, isError, isFetching } = useQuery({
+  const { data,  isLoading, isError } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
 
   })
-
-  console.log(data);
  
    const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
@@ -45,13 +42,12 @@ export default function App() {
 
   return (
     <>
-      <Toaster />
       <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {data && data.results.length > 0 && (
         <>
-         <MovieGrid movies={data.results} onSelect={handleSelectMovie} />
+         <MovieGrid movies={data.results.slice(0, 15)} onSelect={handleSelectMovie} />
           {data.total_pages > 1 && (
             <ReactPaginate
               pageCount={data.total_pages}
